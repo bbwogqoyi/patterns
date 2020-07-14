@@ -58,10 +58,10 @@ let _singleton (ptn:Pattern) (cells:Cell list) =
   | UnknownP -> find Unknown
   | _ -> failwith "Not implemented"
 
-let patternMatch (ptn:Pattern) (cells:Cell list) =
-  match ptn with
-  | BlackP | WhiteP | UnknownP -> _singleton ptn cells
-  | 
+let patternMatch (ptn:Pattern) (cells:Cell list) = failwith "Not implemented"
+  //match ptn with
+  //| BlackP | WhiteP | UnknownP -> _singleton ptn cells
+  //| 
 
 // patternMatch (Exactly (2, UnknownP)) (toCells "xxbwwwb")
 
