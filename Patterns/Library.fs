@@ -27,11 +27,11 @@ let _charToCell (ch:char) =
   |'w' -> Negative
   |_ -> Unknown
 
-let _cellToChar (cell: Cell) =
+let _cellToString (cell: Cell) =
   match cell with
-  | Positive -> 'b'
-  | Negative -> 'w'
-  | Unknown -> '.'
+  | Positive -> "b"
+  | Negative -> "w"
+  | Unknown -> "."
 
 let toCells (str:string)  = 
   let rec helper (index:int) (out:Cell list) = 
@@ -45,9 +45,25 @@ let toCells (str:string)  =
   List.rev unorderedList
 
 let fromCells (cells: Cell list) =
-  List.map _cellToChar cells
+  let seq = List.map _cellToString cells
+  String.concat String.Empty seq
 
-let patternMatch pattern cells = failwith "Not implemented"
+let _singleton (ptn:Pattern) (cells:Cell list) =
+  let find (cell:Cell) = 
+    List.tryFind (fun x -> x=cell) cells
+
+  match ptn with 
+  | BlackP -> find Positive
+  | WhiteP -> find Negative
+  | UnknownP -> find Unknown
+  | _ -> failwith "Not implemented"
+
+let patternMatch (ptn:Pattern) (cells:Cell list) =
+  match ptn with
+  | BlackP | WhiteP | UnknownP -> _singleton ptn cells
+  | 
+
+// patternMatch (Exactly (2, UnknownP)) (toCells "xxbwwwb")
 
 let find pattern cells = failwith "Not implemented"
 
