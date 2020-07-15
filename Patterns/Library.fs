@@ -48,23 +48,27 @@ let fromCells (cells: Cell list) =
   let seq = List.map _cellToString cells
   String.concat String.Empty seq
 
-let _singleton (ptn:Pattern) (cells:Cell list) =
+let _singleton (ptn:Pattern) (cells:Cell list) : Option<Cell> =
   let find (cell:Cell) = 
     List.tryFind (fun x -> x=cell) cells
-
   match ptn with 
   | BlackP -> find Positive
   | WhiteP -> find Negative
   | UnknownP -> find Unknown
   | _ -> failwith "Not implemented"
 
-let patternMatch (ptn:Pattern) (cells:Cell list) = failwith "Not implemented"
-  //match ptn with
-  //| BlackP | WhiteP | UnknownP -> _singleton ptn cells
-  //| 
+let patternMatch (seq:Pattern) (cells:Cell list) = // failwith "Not implemented"
+  match seq with
+  | BlackP | WhiteP | UnknownP | Anything | EndOfCells -> _singleton seq cells
+  | ZeroOrMore ptn -> failwith "Not implemented"
+  | OneOrMore ptn -> failwith "Not implemented"
+  | Exactly (count, ptn) -> failwith "Not implemented"
+  | FewerThan (count, ptn) -> failwith "Not implemented"
+  | Sequence ptnList -> failwith "Not implemented"
+  | Either (a, b) -> failwith "Not implemented"
 
 // patternMatch (Exactly (2, UnknownP)) (toCells "xxbwwwb")
 
 let find pattern cells = failwith "Not implemented"
-
+ 
 let map func pattern cells = failwith "Not implemented"
