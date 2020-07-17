@@ -85,7 +85,7 @@ module PatternMatch =
     doMatch "w" (OneOrMore BlackP) |> shouldEqual None
     doMatch "wbb" (OneOrMore BlackP) |> shouldEqual None
     doMatch "bbbbbbwb" (OneOrMore BlackP) |> shouldEqual (Some "bbbbbb")
-  (*
+  
   [<Test>]
   let ``An Exactly pattern must capture the exact number of the pattern`` () =
     doMatch "" (Exactly (0, UnknownP)) |> shouldEqual (Some "")
@@ -97,7 +97,7 @@ module PatternMatch =
     doMatch "xxbwwwb" (Exactly (3, UnknownP)) |> shouldEqual None
     doMatch "xx" (Exactly (2, UnknownP)) |> shouldEqual (Some "..")
     doMatch "xx" (Exactly (3, UnknownP)) |> shouldEqual None
-
+  
   [<Test>]
   let ``A FewerThan pattern must match fewer items than its number`` () =
     doMatch "" (FewerThan (5, UnknownP)) |> shouldEqual (Some "")
@@ -109,7 +109,7 @@ module PatternMatch =
   [<Test>]
   let ``You cannot match fewer than 0 things`` () =
     doMatch "." (FewerThan (0, UnknownP)) |> shouldEqual None
-
+(*
   [<Test>]
   let ``A Sequence pattern matches a series of patterns`` () =
     doMatch "wbwbb" (Sequence []) |> shouldEqual (Some "")

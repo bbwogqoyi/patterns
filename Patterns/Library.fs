@@ -96,10 +96,22 @@ let patternMatch (seq:Pattern) (cells:Cell list) : Option<Cell List> = // failwi
     match (result.Length > 0) with
     | false -> None
     | true -> Some result
-    
 
-  | Exactly (count, ptn) -> failwith "Not implemented"
-  | FewerThan (count, ptn) -> failwith "Not implemented"
+  | Exactly (count, ptn) -> //failwith "Not implemented"
+    let key = _patternToCell ptn
+    let result = _takeFirstOccurances key cells
+    match (result.Length >= count) with
+    | true -> Some (List.take count result)
+    | _ -> None
+
+  | FewerThan (count, ptn) -> // failwith "Not implemented"
+    let key = _patternToCell ptn
+    let result = _takeFirstOccurances key cells
+    match (count>0), (result.Length >= count) with
+    | true, true -> Some (List.take (count-1) result)
+    | true, _ -> Some result
+    | _ -> None
+
   | Sequence ptnList -> failwith "Not implemented"
   | Either (a, b) -> failwith "Not implemented"
   | Anything | EndOfCells -> failwith "Not implemented"
