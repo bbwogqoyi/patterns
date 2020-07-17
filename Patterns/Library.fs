@@ -77,44 +77,51 @@ let _takeFirstOccurances (ptn:Pattern) (cells:Cell list) =
   let result = helper cells []
   (key, (List.rev result))
 
-let patternMatch (seq:Pattern) (cells:Cell list) : Option<Cell List> = // failwith "Not implemented"
-  //let rec helper (seq:Pattern) (cells:Cell list) (result:Cell list) = 
-  match seq with 
-  | BlackP | WhiteP | UnknownP  -> 
-    let ptnLkupResult = _ptnToCellFn seq cells
-    match ptnLkupResult with
-    | Some v -> Some (v::[])
-    | _ -> None 
+let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> = // failwith "Not implemented"
+  let rec helper (seq:Pattern) (cellList:Cell list) (result:Cell list) = 
+    match seq with 
+    | BlackP | WhiteP | UnknownP  -> 
+      let ptnLkupResult = _ptnToCellFn seq cellList
+      match ptnLkupResult with
+      | Some v -> Some (v::[])
+      | _ -> None 
 
-  | ZeroOrMore ptn -> 
-    let _, result = _takeFirstOccurances ptn cells
-    Some result
+    | ZeroOrMore ptn -> 
+      let _, result = _takeFirstOccurances ptn cellList
+      Some result
 
-  | OneOrMore ptn -> // failwith "Not implemented"
-    let _, result = _takeFirstOccurances ptn cells
-    match (result.Length > 0) with
-    | false -> None
-    | true -> Some result
+    | OneOrMore ptn -> // failwith "Not implemented"
+      let _, result = _takeFirstOccurances ptn cellList
+      match (result.Length > 0) with
+      | false -> None
+      | true -> Some result
 
-  | Exactly (count, ptn) -> //failwith "Not implemented"
-    let _, result = _takeFirstOccurances ptn cells
-    match (result.Length >= count) with
-    | true -> Some (List.take count result)
-    | _ -> None
+    | Exactly (count, ptn) -> //failwith "Not implemented"
+      let _, result = _takeFirstOccurances ptn cellList
+      match (result.Length >= count) with
+      | true -> Some (List.take count result)
+      | _ -> None
 
-  | FewerThan (count, ptn) -> // failwith "Not implemented"
-    let _, result = _takeFirstOccurances ptn cells
-    match (count>0), (result.Length >= count) with
-    | true, true -> Some (List.take (count-1) result)
-    | true, _ -> Some result
-    | _ -> None
+    | FewerThan (count, ptn) -> // failwith "Not implemented"
+      let _, result = _takeFirstOccurances ptn cellList
+      match (count>0), (result.Length >= count) with
+      | true, true -> Some (List.take (count-1) result)
+      | true, _ -> Some result
+      | _ -> None
 
-  | Sequence ptnList -> failwith "Not implemented"
-    
+    | Sequence ptnList -> // failwith "Not implemented"
+      match ptnList with
+        | [] -> Some (List.rev result)
+        | h::t -> 
+          let option = helper h cellList result
+          match option with
+          | Some value -> helper (Sequence t) cellList.Tail (value@result)
+          | _ -> option
 
-
-  | Either (a, b) -> failwith "Not implemented"
-  | Anything | EndOfCells -> failwith "Not implemented"
+    | Either (a, b) -> failwith "Not implemented"
+    | Anything | EndOfCells -> failwith "Not implemented"
+  
+  helper _ptn _cells []
 
 // patternMatch (Exactly (2, UnknownP)) (toCells "xxbwwwb")
 

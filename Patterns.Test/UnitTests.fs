@@ -109,7 +109,7 @@ module PatternMatch =
   [<Test>]
   let ``You cannot match fewer than 0 things`` () =
     doMatch "." (FewerThan (0, UnknownP)) |> shouldEqual None
-(*
+
   [<Test>]
   let ``A Sequence pattern matches a series of patterns`` () =
     doMatch "wbwbb" (Sequence []) |> shouldEqual (Some "")
@@ -120,7 +120,7 @@ module PatternMatch =
     doMatch "wbwbb" (Sequence [WhiteP; BlackP; WhiteP; BlackP; BlackP]) |> shouldEqual (Some "wbwbb")
     doMatch "wbwbb" (Sequence [WhiteP; BlackP; WhiteP; BlackP; WhiteP]) |> shouldEqual None
     doMatch "wbwbb" (Sequence [WhiteP; BlackP; WhiteP; WhiteP; BlackP]) |> shouldEqual None
-
+(*
   [<Test>]
   let ``An Either pattern matches only one of the patterns`` () =
     doMatch "" (Either (BlackP, WhiteP)) |> shouldEqual None
