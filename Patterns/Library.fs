@@ -33,6 +33,13 @@ let _cellToString (cell: Cell) =
   | Negative -> "w"
   | Unknown -> "."
 
+let _patternToCell (ptn: Pattern) =
+  match ptn with
+  | BlackP-> Positive 
+  | WhiteP -> Negative
+  | UnknownP -> Unknown
+  | _ -> failwith "Not implemented"
+
 let toCells (str:string)  = 
   let rec helper (index:int) (out:Cell list) = 
     match index<(String.length str) with 
@@ -48,24 +55,32 @@ let fromCells (cells: Cell list) =
   let seq = List.map _cellToString cells
   String.concat String.Empty seq
 
-let _singleton (ptn:Pattern) (cells:Cell list) : Option<Cell> =
-  let find (cell:Cell) = 
-    List.tryFind (fun x -> x=cell) cells
-  match ptn with 
-  | BlackP -> find Positive
-  | WhiteP -> find Negative
-  | UnknownP -> find Unknown
-  | _ -> failwith "Not implemented"
+//    doMatch "b" BlackP |> shouldEqual (Some "b")
+let _ptnToCellFn (key:Pattern) (cells:Cell list) =
+  let value = _patternToCell key
+  match cells with 
+  | [] -> None
+  | head::_ -> 
+    match (head=value) with
+    | true -> Some value
+    | _ -> None
 
-let patternMatch (seq:Pattern) (cells:Cell list) = // failwith "Not implemented"
-  match seq with
-  | BlackP | WhiteP | UnknownP | Anything | EndOfCells -> _singleton seq cells
+let patternMatch (seq:Pattern) (cells:Cell list) : Option<Cell List> = // failwith "Not implemented"
+  //let rec helper (seq:Pattern) (cells:Cell list) (result:Cell list) = 
+  match seq with 
+  | BlackP | WhiteP | UnknownP  -> 
+    let ptnLkupResult = _ptnToCellFn seq cells
+    match ptnLkupResult with
+    | Some v -> Some (v::[])
+    | _ -> None 
+
   | ZeroOrMore ptn -> failwith "Not implemented"
   | OneOrMore ptn -> failwith "Not implemented"
   | Exactly (count, ptn) -> failwith "Not implemented"
   | FewerThan (count, ptn) -> failwith "Not implemented"
   | Sequence ptnList -> failwith "Not implemented"
   | Either (a, b) -> failwith "Not implemented"
+  | Anything | EndOfCells -> failwith "Not implemented"
 
 // patternMatch (Exactly (2, UnknownP)) (toCells "xxbwwwb")
 

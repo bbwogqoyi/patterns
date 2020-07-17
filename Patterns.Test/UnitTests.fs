@@ -36,7 +36,7 @@ let ``Complex sequences are round-tripped correctly`` () =
 // If the code doesn't compile, you've probably messed up
 // your data-type.
 
-(* // BEGINNING OF COMMENTED SECTION
+ // BEGINNING OF COMMENTED SECTION
 
 // to convert from a list of cells to a textual form
 let fromMatch = Option.map fromCells
@@ -69,7 +69,7 @@ module PatternMatch =
     doMatch " ~" UnknownP |> shouldEqual (Some ".")
     doMatch "b" UnknownP |> shouldEqual None
     doMatch "W" UnknownP |> shouldEqual None
-
+(*
   [<Test>]
   let ``A ZeroOrMore pattern captures zero or more of the pattern`` () =
     doMatch "" (ZeroOrMore BlackP) |> shouldEqual (Some "")
