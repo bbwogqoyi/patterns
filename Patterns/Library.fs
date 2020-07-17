@@ -65,7 +65,8 @@ let _ptnToCellFn (key:Pattern) (cells:Cell list) =
     | true -> Some value
     | _ -> None
 
-let _takeFirstOccurances (key:Cell) (cells:Cell list) =
+let _takeFirstOccurances (ptn:Pattern) (cells:Cell list) =
+  let key = _patternToCell ptn
   let rec helper (_in:Cell list) (result:Cell list) =
     match _in with
     | [] -> result
@@ -73,9 +74,8 @@ let _takeFirstOccurances (key:Cell) (cells:Cell list) =
       match (h=key) with
       | false -> result 
       | true -> helper t (key::result)
-
   let result = helper cells []
-  List.rev result
+  (key, (List.rev result))
 
 let patternMatch (seq:Pattern) (cells:Cell list) : Option<Cell List> = // failwith "Not implemented"
   //let rec helper (seq:Pattern) (cells:Cell list) (result:Cell list) = 
@@ -87,32 +87,32 @@ let patternMatch (seq:Pattern) (cells:Cell list) : Option<Cell List> = // failwi
     | _ -> None 
 
   | ZeroOrMore ptn -> 
-    let key = _patternToCell ptn
-    Some (_takeFirstOccurances key cells)
+    let _, result = _takeFirstOccurances ptn cells
+    Some result
 
   | OneOrMore ptn -> // failwith "Not implemented"
-    let key = _patternToCell ptn
-    let result = _takeFirstOccurances key cells
+    let _, result = _takeFirstOccurances ptn cells
     match (result.Length > 0) with
     | false -> None
     | true -> Some result
 
   | Exactly (count, ptn) -> //failwith "Not implemented"
-    let key = _patternToCell ptn
-    let result = _takeFirstOccurances key cells
+    let _, result = _takeFirstOccurances ptn cells
     match (result.Length >= count) with
     | true -> Some (List.take count result)
     | _ -> None
 
   | FewerThan (count, ptn) -> // failwith "Not implemented"
-    let key = _patternToCell ptn
-    let result = _takeFirstOccurances key cells
+    let _, result = _takeFirstOccurances ptn cells
     match (count>0), (result.Length >= count) with
     | true, true -> Some (List.take (count-1) result)
     | true, _ -> Some result
     | _ -> None
 
   | Sequence ptnList -> failwith "Not implemented"
+    
+
+
   | Either (a, b) -> failwith "Not implemented"
   | Anything | EndOfCells -> failwith "Not implemented"
 
