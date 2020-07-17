@@ -69,7 +69,7 @@ module PatternMatch =
     doMatch " ~" UnknownP |> shouldEqual (Some ".")
     doMatch "b" UnknownP |> shouldEqual None
     doMatch "W" UnknownP |> shouldEqual None
-(*
+
   [<Test>]
   let ``A ZeroOrMore pattern captures zero or more of the pattern`` () =
     doMatch "" (ZeroOrMore BlackP) |> shouldEqual (Some "")
@@ -85,7 +85,7 @@ module PatternMatch =
     doMatch "w" (OneOrMore BlackP) |> shouldEqual None
     doMatch "wbb" (OneOrMore BlackP) |> shouldEqual None
     doMatch "bbbbbbwb" (OneOrMore BlackP) |> shouldEqual (Some "bbbbbb")
-  
+  (*
   [<Test>]
   let ``An Exactly pattern must capture the exact number of the pattern`` () =
     doMatch "" (Exactly (0, UnknownP)) |> shouldEqual (Some "")

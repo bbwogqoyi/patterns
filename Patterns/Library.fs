@@ -60,10 +60,22 @@ let _ptnToCellFn (key:Pattern) (cells:Cell list) =
   let value = _patternToCell key
   match cells with 
   | [] -> None
-  | head::_ -> 
-    match (head=value) with
+  | h::_ -> 
+    match (h=value) with
     | true -> Some value
     | _ -> None
+
+let _takeFirstOccurances (key:Cell) (cells:Cell list) =
+  let rec helper (_in:Cell list) (result:Cell list) =
+    match _in with
+    | [] -> result
+    | h::t ->
+      match (h=key) with
+      | false -> result 
+      | true -> helper t (key::result)
+
+  let result = helper cells []
+  List.rev result
 
 let patternMatch (seq:Pattern) (cells:Cell list) : Option<Cell List> = // failwith "Not implemented"
   //let rec helper (seq:Pattern) (cells:Cell list) (result:Cell list) = 
@@ -74,8 +86,18 @@ let patternMatch (seq:Pattern) (cells:Cell list) : Option<Cell List> = // failwi
     | Some v -> Some (v::[])
     | _ -> None 
 
-  | ZeroOrMore ptn -> failwith "Not implemented"
-  | OneOrMore ptn -> failwith "Not implemented"
+  | ZeroOrMore ptn -> 
+    let key = _patternToCell ptn
+    Some (_takeFirstOccurances key cells)
+
+  | OneOrMore ptn -> // failwith "Not implemented"
+    let key = _patternToCell ptn
+    let result = _takeFirstOccurances key cells
+    match (result.Length > 0) with
+    | false -> None
+    | true -> Some result
+    
+
   | Exactly (count, ptn) -> failwith "Not implemented"
   | FewerThan (count, ptn) -> failwith "Not implemented"
   | Sequence ptnList -> failwith "Not implemented"
