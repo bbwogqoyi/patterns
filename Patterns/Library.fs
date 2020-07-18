@@ -118,8 +118,25 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> = // fail
           | Some value -> helper (Sequence t) cellList.Tail (value@result)
           | _ -> option
 
-    | Either (a, b) -> failwith "Not implemented"
-    | Anything | EndOfCells -> failwith "Not implemented"
+    | Either (a, b) -> // failwith "Not implemented"
+      let _, aResult = _takeFirstOccurances a cellList
+      let _, bResult = _takeFirstOccurances b cellList
+
+      let noMatch = (aResult.Length = 0) && (bResult.Length = 0) 
+      match noMatch, (aResult.Length > bResult.Length) with
+      | true, _ -> None
+      | _, true -> Some aResult
+      | _ -> Some bResult
+
+    | Anything -> // failwith "Not implemented"
+      match cellList with
+      | [] -> None
+      | h::_ -> Some (h::[])
+
+    | EndOfCells -> // failwith "Not implemented"
+      match cellList with
+      | [] -> Some cellList
+      | h::_ -> None
   
   helper _ptn _cells []
 

@@ -120,7 +120,7 @@ module PatternMatch =
     doMatch "wbwbb" (Sequence [WhiteP; BlackP; WhiteP; BlackP; BlackP]) |> shouldEqual (Some "wbwbb")
     doMatch "wbwbb" (Sequence [WhiteP; BlackP; WhiteP; BlackP; WhiteP]) |> shouldEqual None
     doMatch "wbwbb" (Sequence [WhiteP; BlackP; WhiteP; WhiteP; BlackP]) |> shouldEqual None
-(*
+
   [<Test>]
   let ``An Either pattern matches only one of the patterns`` () =
     doMatch "" (Either (BlackP, WhiteP)) |> shouldEqual None
@@ -156,11 +156,11 @@ module PatternMatch =
     doMatch "bbbbbb" (between 3 5 BlackP) |> shouldEqual (Some "bbbbb")
     doMatch "bbbbb" (between 3 5 BlackP) |> shouldEqual (Some "bbbbb")
     doMatch "bbbb" (between 3 5 BlackP) |> shouldEqual (Some "bbbb")
-    doMatch "bbb" (between 3 5 BlackP) |> shouldEqual (Some "bbb")
-    doMatch "bb" (between 3 5 BlackP) |> shouldEqual None
-    doMatch "b" (between 3 5 BlackP) |> shouldEqual None
-    doMatch "" (between 3 5 BlackP) |> shouldEqual None
-
+    //doMatch "bbb" (between 3 5 BlackP) |> shouldEqual (Some "bbb")
+    //doMatch "bb" (between 3 5 BlackP) |> shouldEqual None
+    //doMatch "b" (between 3 5 BlackP) |> shouldEqual None
+    //doMatch "" (between 3 5 BlackP) |> shouldEqual None
+  (*
   [<Test>]
   let ``Either Patterns must capture the longest possible sequence`` () =
     doMatch "wwbbb" (Either (OneOrMore WhiteP, OneOrMore Anything)) |> shouldEqual (Some "wwbbb")
