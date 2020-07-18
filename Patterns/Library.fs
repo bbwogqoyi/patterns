@@ -77,7 +77,7 @@ let _takeFirstOccurances (ptn:Pattern) (cells:Cell list) =
   let result = helper cells []
   (key, (List.rev result))
 
-let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> = // failwith "Not implemented"
+let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
   let rec helper (seq:Pattern) (cellList:Cell list) (result:Cell list) = 
     match seq with 
     | BlackP | WhiteP | UnknownP  -> 
@@ -90,26 +90,26 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> = // fail
       let _, result = _takeFirstOccurances ptn cellList
       Some result
 
-    | OneOrMore ptn -> // failwith "Not implemented"
+    | OneOrMore ptn ->
       let _, result = _takeFirstOccurances ptn cellList
       match (result.Length > 0) with
       | false -> None
       | true -> Some result
 
-    | Exactly (count, ptn) -> //failwith "Not implemented"
+    | Exactly (count, ptn) ->
       let _, result = _takeFirstOccurances ptn cellList
       match (result.Length >= count) with
       | true -> Some (List.take count result)
       | _ -> None
 
-    | FewerThan (count, ptn) -> // failwith "Not implemented"
+    | FewerThan (count, ptn) ->
       let _, result = _takeFirstOccurances ptn cellList
       match (count>0), (result.Length >= count) with
       | true, true -> Some (List.take (count-1) result)
       | true, _ -> Some result
       | _ -> None
 
-    | Sequence ptnList -> // failwith "Not implemented"
+    | Sequence ptnList ->
       match ptnList with
         | [] -> Some (List.rev result)
         | h::t -> 
@@ -118,7 +118,7 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> = // fail
           | Some value -> helper (Sequence t) cellList.Tail (value@result)
           | _ -> option
 
-    | Either (a, b) -> // failwith "Not implemented"
+    | Either (a, b) ->
       let _, aResult = _takeFirstOccurances a cellList
       let _, bResult = _takeFirstOccurances b cellList
 
@@ -128,12 +128,12 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> = // fail
       | _, true -> Some aResult
       | _ -> Some bResult
 
-    | Anything -> // failwith "Not implemented"
+    | Anything ->
       match cellList with
       | [] -> None
       | h::_ -> Some (h::[])
 
-    | EndOfCells -> // failwith "Not implemented"
+    | EndOfCells ->
       match cellList with
       | [] -> Some cellList
       | h::_ -> None
