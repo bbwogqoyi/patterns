@@ -38,7 +38,16 @@ let _patternToCell (ptn: Pattern) =
   | BlackP-> Positive 
   | WhiteP -> Negative
   | UnknownP -> Unknown
-  | _ -> failwith "Not implemented"
+  | _ -> failwith "Pattern does not represent any cell case"
+
+let _isPatternMatchingToCell (ptn: Pattern) (cell:Cell) =
+  match ptn with
+  | BlackP -> Positive = cell
+  | WhiteP -> Negative = cell
+  | UnknownP -> Unknown = cell
+  | Anything -> true
+  | _ -> failwith "Pattern does not represent any cell case"
+
 
 let toCells (str:string)  = 
   let rec helper (index:int) (out:Cell list) = 
@@ -56,26 +65,23 @@ let fromCells (cells: Cell list) =
   String.concat String.Empty seq
 
 //    doMatch "b" BlackP |> shouldEqual (Some "b")
-let _ptnToCellFn (key:Pattern) (cells:Cell list) =
-  let value = _patternToCell key
+let _ptnToCellFn (ptn:Pattern) (cells:Cell list) =
   match cells with 
   | [] -> None
   | h::_ -> 
-    match (h=value) with
-    | true -> Some value
+    match _isPatternMatchingToCell ptn h with
+    | true -> Some h
     | _ -> None
 
-let _takeFirstOccurances (ptn:Pattern) (cells:Cell list) =
-  let key = _patternToCell ptn
+let _takeOccurances (ptn:Pattern) (cells:Cell list) =
   let rec helper (_in:Cell list) (result:Cell list) =
     match _in with
-    | [] -> result
+    | [] -> (List.rev result), _in 
     | h::t ->
-      match (h=key) with
-      | false -> result 
-      | true -> helper t (key::result)
-  let result = helper cells []
-  (key, (List.rev result))
+      match (_isPatternMatchingToCell ptn h) with
+      | false -> (List.rev result), _in 
+      | true -> helper t (h::result)
+  helper cells [] 
 
 let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
   let rec helper (seq:Pattern) (cellList:Cell list) (result:Cell list) = 
@@ -87,17 +93,17 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
       | _ -> None 
 
     | ZeroOrMore ptn -> 
-      let _, result = _takeFirstOccurances ptn cellList
-      Some (result, cellList.[result.Length ..])
+      let result, rest = _takeOccurances ptn cellList
+      Some (result, rest)
 
     | OneOrMore ptn ->
-      let _, result = _takeFirstOccurances ptn cellList
+      let result, rest = _takeOccurances ptn cellList
       match (result.Length > 0) with
       | false -> None
-      | true -> Some (result, cellList.[result.Length ..])
+      | true -> Some (result, rest)
 
     | Exactly (count, ptn) ->
-      let _, result = _takeFirstOccurances ptn cellList
+      let result, _ = _takeOccurances ptn cellList
       match (result.Length >= count) with
       | false -> None
       | true -> 
@@ -109,7 +115,7 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
       match count>0 with
       | false -> None
       | true ->
-        let _, result = _takeFirstOccurances ptn cellList
+        let result, _ = _takeOccurances ptn cellList
         let subset = 
           match  (result.Length >= count) with
           | true -> (List.take (count-1) result)
@@ -119,32 +125,26 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
       
     | Sequence ptnList ->
       match ptnList with
-        | [] -> 
-          let seqResult = (List.rev result)
-          let rest = cellList.[seqResult.Length ..]
-          Some (seqResult, rest)
+        | [] -> Some (result, cellList)
         | h::t -> 
           let option = helper h cellList result
           match option with
           | None -> option
           | Some (ptnResult, rest) -> 
-            let newResult = (ptnResult@result)
+            let newResult = (result@ptnResult)
             helper (Sequence t) rest newResult
           
     | Either (a, b) ->
-      let _, aResult = _takeFirstOccurances a cellList
-      let _, bResult = _takeFirstOccurances b cellList
+      let aResult, aRest = _takeOccurances a cellList
+      let bResult, bRest = _takeOccurances b cellList
 
       let noMatch = (aResult.Length = 0) && (bResult.Length = 0) 
       match noMatch with
       | true -> None
       | _ ->
-        let ptnResult = 
-          match (aResult.Length > bResult.Length) with
-          | true -> aResult
-          | false -> bResult
-        let rest = cellList.[ptnResult.Length ..]
-        Some (ptnResult, rest)
+        match (aResult.Length > bResult.Length) with
+        | true -> Some (aResult, aRest)
+        | false -> Some (bResult, bRest)
 
     | Anything ->
       match cellList with
@@ -154,10 +154,10 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
 
     | EndOfCells ->
       match cellList with
+      | _::_ -> None
       | [] -> Some (cellList, cellList)
-      | _ -> None
-  
-  //let ptnMatchResult = 
+      
+   
   match (helper _ptn _cells []) with
   | Some (ptnResult, _) -> Some ptnResult
   | _ -> None

@@ -156,11 +156,11 @@ module PatternMatch =
     doMatch "bbbbbb" (between 3 5 BlackP) |> shouldEqual (Some "bbbbb")
     doMatch "bbbbb" (between 3 5 BlackP) |> shouldEqual (Some "bbbbb")
     doMatch "bbbb" (between 3 5 BlackP) |> shouldEqual (Some "bbbb")
-    //doMatch "bbb" (between 3 5 BlackP) |> shouldEqual (Some "bbb")
-    //doMatch "bb" (between 3 5 BlackP) |> shouldEqual None
-    //doMatch "b" (between 3 5 BlackP) |> shouldEqual None
-    //doMatch "" (between 3 5 BlackP) |> shouldEqual None
-  (*
+    doMatch "bbb" (between 3 5 BlackP) |> shouldEqual (Some "bbb")
+    doMatch "bb" (between 3 5 BlackP) |> shouldEqual None
+    doMatch "b" (between 3 5 BlackP) |> shouldEqual None
+    doMatch "" (between 3 5 BlackP) |> shouldEqual None
+  
   [<Test>]
   let ``Either Patterns must capture the longest possible sequence`` () =
     doMatch "wwbbb" (Either (OneOrMore WhiteP, OneOrMore Anything)) |> shouldEqual (Some "wwbbb")
@@ -171,7 +171,7 @@ module PatternMatch =
         ZeroOrMore (Either (BlackP, WhiteP))
       ))
     |> shouldEqual (Some "wbw.")
-
+  (*
   [<Test>]
   let ``More interesting combinations 1`` () =
     // Patterns take the LONGEST sequence that they can.
