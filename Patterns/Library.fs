@@ -64,15 +64,6 @@ let fromCells (cells: Cell list) =
   let seq = List.map _cellToString cells
   String.concat String.Empty seq
 
-//    doMatch "b" BlackP |> shouldEqual (Some "b")
-let _ptnToCellFn (ptn:Pattern) (cells:Cell list) =
-  match cells with 
-  | [] -> None
-  | h::_ -> 
-    match _isPatternMatchingToCell ptn h with
-    | true -> Some h
-    | _ -> None
-
 let _takeOccurances (ptn:Pattern) (cells:Cell list) =
   let rec helper (_in:Cell list) (result:Cell list) =
     match _in with
@@ -84,56 +75,66 @@ let _takeOccurances (ptn:Pattern) (cells:Cell list) =
   helper cells [] 
 
 let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
+  let check (ptn:Pattern) (cells:Cell list) =
+    match cells with 
+    | [] -> None
+    | h::_ -> 
+      match _isPatternMatchingToCell ptn h with
+      | true -> Some h
+      | _ -> None
+
   let rec helper (seq:Pattern) (cellList:Cell list) (result:Cell list) = 
     match seq with 
     | BlackP | WhiteP | UnknownP  -> 
-      let ptnLkupResult = _ptnToCellFn seq cellList
-      match ptnLkupResult with
+      let option = check seq cellList
+      match option with
       | Some v -> Some (v::[], cellList.Tail)
       | _ -> None 
 
     | ZeroOrMore ptn -> 
-      let result, rest = _takeOccurances ptn cellList
-      Some (result, rest)
+      let nested = helper ptn cellList result
+      match nested with
+      | None -> Some (result, cellList)
+      | Some (ptnCells, remCells) -> 
+        let newResult = result@ptnCells
+        helper seq remCells newResult
 
     | OneOrMore ptn ->
-      let result, rest = _takeOccurances ptn cellList
-      match (result.Length > 0) with
-      | false -> None
-      | true -> Some (result, rest)
+      let nested = helper (ZeroOrMore ptn) cellList result
+      match nested with
+      | Some (ptnCells, remCells) -> 
+          match (ptnCells.Length > 0 ) with
+          | false -> None
+          | true -> Some (ptnCells, remCells)
+      | _ -> None
 
     | Exactly (count, ptn) ->
-      let result, _ = _takeOccurances ptn cellList
-      match (result.Length >= count) with
-      | false -> None
-      | true -> 
-        let subset = (List.take count result) 
-        let rest = cellList.[count ..]
-        Some (subset, rest)
+      let nested = helper (ZeroOrMore ptn) cellList result
+      match nested with
+      | Some (ptnCells, _) -> 
+        match (ptnCells.Length >= count) with
+        | false -> None
+        | true -> 
+          let subset = (List.take count ptnCells) 
+          let rest = cellList.[count ..]
+          Some (subset, rest)
+      | _ -> None
       
     | FewerThan (count, ptn) ->
       match count>0 with
       | false -> None
       | true ->
-        let result, _ = _takeOccurances ptn cellList
-        let subset = 
-          match  (result.Length >= count) with
-          | true -> (List.take (count-1) result)
-          |  _ -> result
-        let rest = cellList.[subset.Length ..]
-        Some (subset, rest)
-      
-    | Sequence ptnList ->
-      match ptnList with
-        | [] -> Some (result, cellList)
-        | h::t -> 
-          let option = helper h cellList result
-          match option with
-          | None -> option
-          | Some (ptnResult, rest) -> 
-            let newResult = (result@ptnResult)
-            helper (Sequence t) rest newResult
-          
+        let nested = helper (ZeroOrMore ptn) cellList result
+        match nested with
+        | Some (ptnCells, remCells) -> 
+          match (ptnCells.Length >= count) with
+          | false -> Some (ptnCells, remCells)
+          | true -> 
+            let subset = List.take (count-1) ptnCells
+            let rest = cellList.[subset.Length ..]
+            Some (subset, rest)
+        | _ -> failwith "FewerThan only returns 'None' when (count < 0)"
+    
     | Either (a, b) ->
       let aResult, aRest = _takeOccurances a cellList
       let bResult, bRest = _takeOccurances b cellList
@@ -145,6 +146,17 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
         match (aResult.Length > bResult.Length) with
         | true -> Some (aResult, aRest)
         | false -> Some (bResult, bRest)
+
+    | Sequence ptnList ->
+      match ptnList with
+        | [] -> Some (result, cellList)
+        | h::t -> 
+          let option = helper h cellList result
+          match option with
+          | None -> option
+          | Some (ptnResult, rest) -> 
+            let newResult = (result@ptnResult)
+            helper (Sequence t) rest newResult
 
     | Anything ->
       match cellList with

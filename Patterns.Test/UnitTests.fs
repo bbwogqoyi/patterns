@@ -171,7 +171,7 @@ module PatternMatch =
         ZeroOrMore (Either (BlackP, WhiteP))
       ))
     |> shouldEqual (Some "wbw.")
-  (*
+  
   [<Test>]
   let ``More interesting combinations 1`` () =
     // Patterns take the LONGEST sequence that they can.
@@ -188,7 +188,7 @@ module PatternMatch =
     |> shouldEqual None
     doMatch "bbbbb" (Sequence [OneOrMore BlackP; Anything]) |> shouldEqual None
 
-
+(*
   [<Test>]
   let ``More interesting combinations 3`` () =
     doMatch "bbbw." (ZeroOrMore (FewerThan (2, Anything))) |> shouldEqual (Some "bbbw.")
