@@ -188,7 +188,7 @@ module PatternMatch =
     |> shouldEqual None
     doMatch "bbbbb" (Sequence [OneOrMore BlackP; Anything]) |> shouldEqual None
 
-(*
+
   [<Test>]
   let ``More interesting combinations 3`` () =
     doMatch "bbbw." (ZeroOrMore (FewerThan (2, Anything))) |> shouldEqual (Some "bbbw.")
@@ -204,7 +204,7 @@ module PatternMatch =
     |> shouldEqual (Some "..bbb...")
 
 // The following tests are for the 'find' function.
-
+(*
 let doFind s p = toCells s |> find p |> Option.map (fun (a,b) -> fromCells a, b)
 
 module Find =
