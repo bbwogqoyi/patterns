@@ -82,12 +82,15 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
       | _ -> None 
 
     | ZeroOrMore ptn -> 
-      let nested = helper ptn cellList result
-      match nested with
-      | None -> Some (result, cellList)
-      | Some (ptnCells, remCells) -> 
-        //let newResult = result@ptnCells
-        helper seq remCells ptnCells
+      match cellList.Length>0 with
+      | false -> Some (result, cellList)
+      | true ->
+        let nested = helper ptn cellList result
+        match nested with
+        | None -> Some (result, cellList)
+        | Some (ptnCells, remCells) -> 
+          //let newResult = result@ptnCells
+          helper seq remCells ptnCells
 
     | OneOrMore ptn ->
       match cellList.Length > 0 with
