@@ -258,4 +258,4 @@ module Map =
     doMap "bw.w.wb" pattern delete |> shouldEqual ".w."
     doMap "bw.w.wb" pattern double |> shouldEqual "bwbw.w.wbwb"
 
-(*  *) // END OF COMMENTED SECTION
+// END OF COMMENTED SECTION
