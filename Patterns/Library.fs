@@ -33,13 +33,6 @@ let _cellToString (cell: Cell) =
   | Negative -> "w"
   | Unknown -> "."
 
-let _patternToCell (ptn: Pattern) =
-  match ptn with
-  | BlackP-> Positive 
-  | WhiteP -> Negative
-  | UnknownP -> Unknown
-  | _ -> failwith "Pattern does not represent any cell case"
-
 let _isPatternMatchingToCell (ptn: Pattern) (cell:Cell) =
   match ptn with
   | BlackP -> Positive = cell
@@ -64,65 +57,81 @@ let fromCells (cells: Cell list) =
   let seq = List.map _cellToString cells
   String.concat String.Empty seq
 
-//    doMatch "b" BlackP |> shouldEqual (Some "b")
-let _ptnToCellFn (ptn:Pattern) (cells:Cell list) =
-  match cells with 
-  | [] -> None
-  | h::_ -> 
-    match _isPatternMatchingToCell ptn h with
-    | true -> Some h
-    | _ -> None
-
-let _takeOccurances (ptn:Pattern) (cells:Cell list) =
-  let rec helper (_in:Cell list) (result:Cell list) =
-    match _in with
-    | [] -> (List.rev result), _in 
-    | h::t ->
-      match (_isPatternMatchingToCell ptn h) with
-      | false -> (List.rev result), _in 
-      | true -> helper t (h::result)
-  helper cells [] 
-
 let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
+  let check (ptn:Pattern) (cells:Cell list) =
+    match cells with 
+    | [] -> None
+    | h::_ -> 
+      match _isPatternMatchingToCell ptn h with
+      | true -> Some h
+      | _ -> None
+
   let rec helper (seq:Pattern) (cellList:Cell list) (result:Cell list) = 
     match seq with 
     | BlackP | WhiteP | UnknownP  -> 
-      let ptnLkupResult = _ptnToCellFn seq cellList
-      match ptnLkupResult with
-      | Some v -> Some (v::[], cellList.Tail)
+      let option = check seq cellList
+      match option with
+      | Some v -> Some (result@[v], cellList.Tail)
       | _ -> None 
 
     | ZeroOrMore ptn -> 
-      let result, rest = _takeOccurances ptn cellList
-      Some (result, rest)
+      match cellList.Length>0 with
+      | false -> Some (result, cellList)
+      | true ->
+        let nested = helper ptn cellList result
+        match nested with
+        | None -> Some (result, cellList)
+        | Some (ptnCells, remCells) -> 
+          helper seq remCells ptnCells
 
     | OneOrMore ptn ->
-      let result, rest = _takeOccurances ptn cellList
-      match (result.Length > 0) with
+      match cellList.Length > 0 with
+      | true ->
+        let nested = helper (ZeroOrMore ptn) cellList result
+        match nested with
+        | Some (ptnCells, remCells) -> 
+            match (ptnCells.Length > 0 ) with
+            | false -> None
+            | true -> Some (ptnCells, remCells)
+        | _ -> None
       | false -> None
-      | true -> Some (result, rest)
 
     | Exactly (count, ptn) ->
-      let result, _ = _takeOccurances ptn cellList
-      match (result.Length >= count) with
-      | false -> None
-      | true -> 
-        let subset = (List.take count result) 
-        let rest = cellList.[count ..]
-        Some (subset, rest)
+      match (count>0) with
+      | true ->
+        match (helper ptn cellList result) with
+        | Some (ptnCells, remCells) -> 
+          helper (Exactly (count-1, ptn)) remCells ptnCells
+        | _ -> None
+      | false -> Some (result, cellList)
       
     | FewerThan (count, ptn) ->
       match count>0 with
       | false -> None
       | true ->
-        let result, _ = _takeOccurances ptn cellList
-        let subset = 
-          match  (result.Length >= count) with
-          | true -> (List.take (count-1) result)
-          |  _ -> result
-        let rest = cellList.[subset.Length ..]
-        Some (subset, rest)
-      
+        let nested = helper (ZeroOrMore ptn) cellList List.empty
+        match nested with
+        | Some (ptnCells, remCells) -> 
+          match (ptnCells.Length >= count) with
+          | false -> Some (result@ptnCells, remCells)
+          | true -> 
+            let subset = List.take (count-1) ptnCells
+            let rest = cellList.[subset.Length ..]
+            Some (result@subset, rest)
+        | _ -> failwith "FewerThan only returns 'None' when (count < 0)"
+    
+    | Either (a, b) ->
+      let aTuple = helper a cellList result 
+      let bTuple = helper b cellList result
+      match (aTuple, bTuple) with
+      | Some (aResult, _), Some (bResult, _) ->
+        match aResult.Length >= bResult.Length with
+        | true -> aTuple
+        | false -> bTuple
+      | Some x, None | None, Some x ->
+        Some x
+      | _ -> None
+
     | Sequence ptnList ->
       match ptnList with
         | [] -> Some (result, cellList)
@@ -131,39 +140,47 @@ let patternMatch (_ptn:Pattern) (_cells:Cell list) : Option<Cell List> =
           match option with
           | None -> option
           | Some (ptnResult, rest) -> 
-            let newResult = (result@ptnResult)
-            helper (Sequence t) rest newResult
-          
-    | Either (a, b) ->
-      let aResult, aRest = _takeOccurances a cellList
-      let bResult, bRest = _takeOccurances b cellList
-
-      let noMatch = (aResult.Length = 0) && (bResult.Length = 0) 
-      match noMatch with
-      | true -> None
-      | _ ->
-        match (aResult.Length > bResult.Length) with
-        | true -> Some (aResult, aRest)
-        | false -> Some (bResult, bRest)
+            helper (Sequence t) rest ptnResult
 
     | Anything ->
       match cellList with
       | [] -> None
       | h::t -> 
-        Some (h::[], t)
+        Some (result@[h], t)
 
     | EndOfCells ->
       match cellList with
       | _::_ -> None
-      | [] -> Some (cellList, cellList)
-      
-   
+      | [] -> Some (result, cellList)
   match (helper _ptn _cells []) with
   | Some (ptnResult, _) -> Some ptnResult
   | _ -> None
 
-// patternMatch (Exactly (2, UnknownP)) (toCells "xxbwwwb")
-
-let find pattern cells = failwith "Not implemented"
- 
-let map func pattern cells = failwith "Not implemented"
+let find ptn cells = 
+  let rec helper (cList:Cell List) (offset:int) =
+    let result = patternMatch ptn cList
+    match result with
+    | None ->
+      match cList.Length = 0 with
+      | true -> None
+      | false ->
+        helper cList.Tail (offset+1)
+    | Some x -> Some (x, offset) 
+  helper cells 0
+  
+let map (func:(Cell List->Cell List)) (ptn:Pattern) (cells:Cell List) = 
+  let rec helper (cList:Cell List) (rList:Cell List) =
+    match cList.IsEmpty with
+    | true -> rList
+    | false ->
+      match (find ptn cList) with
+      | None -> rList@cList
+      | Some (x, offset) ->
+        let unmatched, transformed = cList.[..(offset-1)], func x
+        let nResult = rList@unmatched@transformed
+        let startIndex = 
+          match offset + x.Length with
+          | 0 -> offset+1
+          | v -> v
+        helper cList.[startIndex..] nResult
+  helper cells List.empty

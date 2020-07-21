@@ -171,7 +171,7 @@ module PatternMatch =
         ZeroOrMore (Either (BlackP, WhiteP))
       ))
     |> shouldEqual (Some "wbw.")
-  (*
+  
   [<Test>]
   let ``More interesting combinations 1`` () =
     // Patterns take the LONGEST sequence that they can.
@@ -258,4 +258,4 @@ module Map =
     doMap "bw.w.wb" pattern delete |> shouldEqual ".w."
     doMap "bw.w.wb" pattern double |> shouldEqual "bwbw.w.wbwb"
 
-*) // END OF COMMENTED SECTION
+// END OF COMMENTED SECTION
