@@ -242,9 +242,9 @@ module Map =
   [<Test>]
   let ``We can apply different functions`` () =
     doMap "bw." BlackP makeUnknown |> shouldEqual ".w."
-    //doMap "bw." BlackP makeWhite |> shouldEqual "ww."
-    //doMap "bw." BlackP delete |> shouldEqual "w."
-    //doMap "bw." BlackP double |> shouldEqual "bbw."
+    doMap "bw." BlackP makeWhite |> shouldEqual "ww."
+    doMap "bw." BlackP delete |> shouldEqual "w."
+    doMap "bw." BlackP double |> shouldEqual "bbw."
 
   [<Test>]
   let ``The mapping is applied to all matches`` () =
@@ -254,8 +254,8 @@ module Map =
         Sequence [Anything; BlackP]
       )
     doMap "bw.w.wb" pattern makeUnknown |> shouldEqual "...w..."
-    //doMap "bw.w.wb" pattern makeWhite |> shouldEqual "ww.w.ww"
-    //doMap "bw.w.wb" pattern delete |> shouldEqual ".w."
-    //doMap "bw.w.wb" pattern double |> shouldEqual "bwbw.w.wbwb"
+    doMap "bw.w.wb" pattern makeWhite |> shouldEqual "ww.w.ww"
+    doMap "bw.w.wb" pattern delete |> shouldEqual ".w."
+    doMap "bw.w.wb" pattern double |> shouldEqual "bwbw.w.wbwb"
 
 (*  *) // END OF COMMENTED SECTION

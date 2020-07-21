@@ -178,6 +178,9 @@ let map (func:(Cell List->Cell List)) (ptn:Pattern) (cells:Cell List) =
       | Some (x, offset) ->
         let unmatched, transformed = cList.[..(offset-1)], func x
         let nResult = rList@unmatched@transformed
-        let startIndex = offset + transformed.Length 
-        helper cList.[startIndex ..] nResult
+        let startIndex = 
+          match offset + x.Length with
+          | 0 -> offset+1
+          | v -> v
+        helper cList.[startIndex..] nResult
   helper cells List.empty
