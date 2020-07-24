@@ -41,7 +41,6 @@ let _isPatternMatchingToCell (ptn: Pattern) (cell:Cell) =
   | Anything -> true
   | _ -> failwith "Pattern does not represent any cell case"
 
-
 let toCells (str:string)  = 
   let rec helper (index:int) (out:Cell list) = 
     match index<(String.length str) with 
